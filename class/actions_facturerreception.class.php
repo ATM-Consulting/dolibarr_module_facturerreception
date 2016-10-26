@@ -63,6 +63,8 @@ class ActionsfacturerReception
 	{
 		global $user,$conf,$langs,$db;
 		
+		dol_include_once('/facturerreception/lib/facturerreception.lib.php');
+		
 		if ($parameters['currentcontext'] == 'ordersuppliercard' && ! empty($conf->fournisseur->enabled) && $object->statut >= 2 && $action=='billedreception')  // 2 means accepted
 		{
 			if ($user->rights->fournisseur->facture->creer)
@@ -81,12 +83,12 @@ class ActionsfacturerReception
 					
 					$Tab = array();
 					while($obj = $db->fetch_object($resultset)) {
-						$obj->line = $this->getGoodLine($object, $obj->fk_commandefourndet, $obj->fk_product);
+						$obj->line = getGoodLine($object, $obj->fk_commandefourndet, $obj->fk_product);
 						
 						$Tab[] = $obj;
 					}
 				
-					$this->createFacture($object,$Tab);
+					createFacture($object,$Tab);
 					
 				}
 				
@@ -94,79 +96,6 @@ class ActionsfacturerReception
 			}
 			
 		}
-	}
-
-	function createFacture(&$object, &$TLine) {
-		global $user,$conf,$langs,$db;
-		
-		dol_include_once('/fourn/class/fournisseur.facture.class.php');
-			
-		$facture = new FactureFournisseur($db);	
-		
-		$facture->origin = $object->element;
-		$facture->origin_id = $object->id;
-		
-		$facture->ref           = '';
-		$facture->ref_supplier = '';
-		//$facture->ref_supplier  = $object->ref_supplier;
-        $facture->socid         = $object->socid;
-		$facture->libelle         = $object->libelle;
-        
-        $object->date          = time();
-        
-        $facture->note_public   = $object->note_public;
-        $facture->note_private   = $object->note_private;
-        $facture->cond_reglement_id   = $object->cond_reglement_id;
-        $facture->fk_account   = $object->fk_account;
-        $facture->fk_project   = empty($object->fk_project) ? null : $object->fk_project;
-        $facture->fk_incoterms   = $object->fk_incoterms;
-        $facture->location_incoterms   = $object->location_incoterms;
-		$facture->ref_supplier = time();
-		$facture->date_echeance = $facture->calculate_date_lim_reglement();
-		
-		foreach($TLine as &$row) {
-			
-			$line = $row->line;
-			$line->qty = $row->qty;
-			$line->id= 0;
-			
-			$facture->lines[] = $line;
-			
-			
-		}
-		
-		$res = $facture->create($user);
-		
-		if($res>0) {
-
-			header('location:'.dol_buildpath('/fourn/facture/card.php?action=editref_supplier&id='.$res,1));
-		
-			exit;
-			
-		}
-		else {
-			//var_dump($res, $facture);
-			setEventMessage("ImpossibleToCreateInvoice","errors");	
-		}
-		
-		
-	}
-
-	function getGoodLine(&$object, $fk_commandefourndet, $fk_product) {
-		
-		if(!empty($object->lines)) {
-			
-			foreach($object->lines as &$line) {
-				
-				if($fk_commandefourndet>0 && $line->id == $fk_commandefourndet) return $line;
-				
-				if($fk_commandefourndet==0 && $line->fk_product == $fk_product) return $line;
-				
-			}
-			
-		}
-
-		
 	}
 
 	function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
