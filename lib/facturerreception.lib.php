@@ -53,34 +53,35 @@ function facturerreceptionAdminPrepareHead() {
 	return $head;
 }
 
-function createFacture(&$object, &$TLine) {
+/**
+ * @param $TCommandeFourn tableau de commandes fourn
+ */
+function createFacture(&$TCommandeFourn, &$TLine) {
 
 	global $user, $conf, $langs, $db;
 
 	dol_include_once('/fourn/class/fournisseur.facture.class.php');
 
-	if(!is_array($object)) $object = array($object);
-
 	$facture = new FactureFournisseur($db);
 
-	$facture -> origin = $object[0] -> element;
-	$facture -> origin_id = $object[0] -> id;
+	$facture -> origin = $TCommandeFourn[0] -> element;
+	$facture -> origin_id = $TCommandeFourn[0] -> id;
 
 	$facture -> ref = '';
 	$facture -> ref_supplier = '';
 	//$facture->ref_supplier  = $object->ref_supplier;
-	$facture -> socid = $object[0] -> socid;
-	$facture -> libelle = $object[0] -> libelle;
+	$facture -> socid = $TCommandeFourn[0] -> socid;
+	$facture -> libelle = $TCommandeFourn[0] -> libelle;
 
-	$object[0] -> date = time();
+	$TCommandeFourn[0] -> date = time();
 
-	$facture -> note_public = $object[0] -> note_public;
-	$facture -> note_private = $object[0] -> note_private;
-	$facture -> cond_reglement_id = $object[0] -> cond_reglement_id;
-	$facture -> fk_account = $object[0] -> fk_account;
-	$facture -> fk_project = empty($object[0] -> fk_project) ? null : $object[0] -> fk_project;
-	$facture -> fk_incoterms = $object[0] -> fk_incoterms;
-	$facture -> location_incoterms = $object[0] -> location_incoterms;
+	$facture -> note_public = $TCommandeFourn[0] -> note_public;
+	$facture -> note_private = $TCommandeFourn[0] -> note_private;
+	$facture -> cond_reglement_id = $TCommandeFourn[0] -> cond_reglement_id;
+	$facture -> fk_account = $TCommandeFourn[0] -> fk_account;
+	$facture -> fk_project = empty($TCommandeFourn[0] -> fk_project) ? null : $TCommandeFourn[0] -> fk_project;
+	$facture -> fk_incoterms = $TCommandeFourn[0] -> fk_incoterms;
+	$facture -> location_incoterms = $TCommandeFourn[0] -> location_incoterms;
 	$facture -> ref_supplier = time();
 	$facture -> date_echeance = $facture -> calculate_date_lim_reglement();
 
@@ -96,7 +97,19 @@ function createFacture(&$object, &$TLine) {
 	$res = $facture -> create($user);
 
 	if ($res > 0) {
-
+		
+		if(count($TCommandeFourn) > 1) {
+			// On attache les autres commandes fournisseur à la facture créée, car fait en auto uniquement pour la première grâce à $facture -> origin_id
+			$first = true;
+			foreach($TCommandeFourn as $obj) {
+				if($first) {
+					$first = false;
+					continue;
+				}
+				$facture->add_object_linked($obj->element, $obj->id);
+			}
+		}
+		
 		header('location:' . dol_buildpath('/fourn/facture/card.php?action=editref_supplier&id=' . $res, 1));
 
 		exit ;

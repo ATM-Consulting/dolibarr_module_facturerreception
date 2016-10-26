@@ -87,8 +87,9 @@ class ActionsfacturerReception
 						
 						$Tab[] = $obj;
 					}
-				
-					createFacture($object,$Tab);
+					
+					$TObj = array($object);
+					createFacture($TObj,$Tab);
 					
 				}
 				

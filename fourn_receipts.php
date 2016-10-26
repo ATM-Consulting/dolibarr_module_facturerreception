@@ -52,7 +52,8 @@ function _print_liste_receptions(&$soc) {
 			FROM '.MAIN_DB_PREFIX.'commande_fournisseur_dispatch cfd
 			INNER JOIN '.MAIN_DB_PREFIX.'commande_fournisseur cf ON cf.rowid = cfd.fk_commande
 			WHERE fk_soc='.$soc->id.'
-			GROUP BY date';
+			AND cf.fk_statut IN(3, 4)
+			GROUP BY cf.rowid, date';
 	
 	$l=new TListviewTBS('list_receptions');
 	
@@ -87,6 +88,7 @@ function _facturer_receptions() {
 	if(!empty($TReceipts)) {
 		
 		$Tab = array();
+		$TCMDFourn = array();
 		
 		foreach($TReceipts as $id_cmd_fourn=>$TReceptions) {
 			$cmd_fourn = new CommandeFournisseur($db);
@@ -110,9 +112,11 @@ function _facturer_receptions() {
 				}
 			}
 			
+			$TCMDFourn[] = $cmd_fourn;
+
 		}
 		
-		createFacture($cmd_fourn, $Tab);
+		createFacture($TCMDFourn, $Tab);
 		
 	}
 }
