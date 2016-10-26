@@ -73,7 +73,7 @@ function createFacture(&$TCommandeFourn, &$TLine) {
 	$facture -> socid = $TCommandeFourn[0] -> socid;
 	$facture -> libelle = $TCommandeFourn[0] -> libelle;
 
-	$TCommandeFourn[0] -> date = time();
+	$facture -> date = time();
 
 	$facture -> note_public = $TCommandeFourn[0] -> note_public;
 	$facture -> note_private = $TCommandeFourn[0] -> note_private;

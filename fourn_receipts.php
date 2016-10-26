@@ -5,6 +5,8 @@ require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 require_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.commande.class.php';
 require_once './lib/facturerreception.lib.php';
 
+$langs->load("facturerreception@facturerreception");
+$langs->load("orders");
 $socid = GETPOST('socid');
 $action = GETPOST('action');
 
@@ -18,7 +20,7 @@ $soc->fetch($socid);
 
 switch($action) {
 	case 'facturer_receptions':
-		_facturer_receptions();
+		$res = _facturer_receptions();
 		break;
 }
 
@@ -27,7 +29,7 @@ switch($action) {
  */
 
 llxHeader();
- 
+
 if (! $user->rights->facture->creer)
 	accessforbidden();
  
@@ -36,6 +38,7 @@ print_fiche_titre($langs->trans('SupplierReceipts'));
 print '<h3>'.$soc->getNomUrl(1,'supplier').'</h3>';
 _print_liste_receptions($soc);
 
+llxFooter();
 
 /**
  * Functions
@@ -73,7 +76,7 @@ function _print_liste_receptions(&$soc) {
 		)
 	));
 	
-	print '<br /><div align="right"><input type="SUBMIT" class="butAction" name="btSubFormFactReceipts" /></div>';
+	print '<br /><div align="right"><input type="SUBMIT" class="butAction" value="'.$langs->trans('RunBillReceipts').'" name="btSubFormFactReceipts" /></div>';
 	
 	print '</form>';
 	
@@ -81,7 +84,7 @@ function _print_liste_receptions(&$soc) {
 
 function _facturer_receptions() {
 	
-	global $db;
+	global $db, $langs;
 	
 	$TReceipts = $_REQUEST['TReceipts'];
 	
@@ -113,12 +116,17 @@ function _facturer_receptions() {
 			}
 			
 			$TCMDFourn[] = $cmd_fourn;
-
+	
 		}
+		
+		setEventMessage($langs->trans('ReceiptsBilled', count($Tab)));
 		
 		createFacture($TCMDFourn, $Tab);
 		
+	} else {
+		setEventMessage($langs->trans('NoReceiptSelected'));
 	}
+	
 }
 
 function get_nom_url($id) {

@@ -103,12 +103,12 @@ class ActionsfacturerReception
 	{
 		global $user,$conf,$langs,$db;
 		
+		$langs->load('facturerreception@facturerreception');
+		
 		if ($parameters['currentcontext'] == 'ordersuppliercard' && ! empty($conf->fournisseur->enabled) && $object->statut >= 2)  // 2 means accepted
 		{
 			if ($user->rights->fournisseur->facture->creer)
 			{
-				$langs->load('facturerreception@facturerreception');
-				
 				$resultset = $db->query("SELECT DATE_FORMAT(datec,'%Y-%m-%d %H:00:00') as 'date', datec as 'datem', SUM(qty) as 'nb'
 				FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch 
 				WHERE fk_commande=".$object->id
@@ -151,7 +151,22 @@ class ActionsfacturerReception
 				<?php
 				
 			}
+		} elseif($parameters['currentcontext'] == 'suppliercard') {
+			
+			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid'), 2);
+						
+			?>
+			<script type="text/javascript">
+			
+				$(document).ready(function() {
+					$("div.tabsAction").append('<a class="butAction" href="<?php print $path; ?>"><?php print $langs->trans('BillReceipts'); ?></a>');
+				});
+				
+			</script>
+			<?php
+			
 		}
+
 	}
 	
 	

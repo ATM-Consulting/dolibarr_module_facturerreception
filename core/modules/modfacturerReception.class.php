@@ -88,7 +88,7 @@ class modfacturerReception extends DolibarrModules
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@facturerreception')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
-			'hooks'=>array('ordersuppliercard', 'invoicesuppliercard')
+			'hooks'=>array('ordersuppliercard', 'invoicesuppliercard', 'suppliercard')
 			,'triggers' => 1
 		);
 
