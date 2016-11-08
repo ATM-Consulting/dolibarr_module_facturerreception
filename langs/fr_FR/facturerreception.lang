@@ -16,4 +16,4 @@ ReceiptDate=Date réception
 nbProduits=Nombre de produits reçus
 CaseACocher=Sélection réceptions à facturer
 NoReceiptSelected=Aucune réception sélectionnée
-ReceiptsBilled=%s réceptions facturées
+ReceiptsBilled=%s lignes de réceptions facturées
