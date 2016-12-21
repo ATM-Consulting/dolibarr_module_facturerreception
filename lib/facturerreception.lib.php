@@ -78,6 +78,7 @@ function createFacture(&$TCommandeFourn, &$TLine) {
 	$facture -> note_public = $TCommandeFourn[0] -> note_public;
 	$facture -> note_private = $TCommandeFourn[0] -> note_private;
 	$facture -> cond_reglement_id = $TCommandeFourn[0] -> cond_reglement_id;
+	$facture -> mode_reglement_id = $TCommandeFourn[0] -> mode_reglement_id;
 	$facture -> fk_account = $TCommandeFourn[0] -> fk_account;
 	$facture -> fk_project = empty($TCommandeFourn[0] -> fk_project) ? null : $TCommandeFourn[0] -> fk_project;
 	$facture -> fk_incoterms = $TCommandeFourn[0] -> fk_incoterms;
