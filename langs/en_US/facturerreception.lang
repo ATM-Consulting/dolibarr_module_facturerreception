@@ -8,3 +8,5 @@ facturerReceptionAbout = About facturerReception
 
 facturerReceptionAllowFreeLineService=Autoriser la récupération des lignes libres de type "Service"
 facturerReceptionAllowFreeLineProduct=Autoriser la récupération des lignes libres de type "Produit"
+
+facturerreception_date_facture=Invoice date

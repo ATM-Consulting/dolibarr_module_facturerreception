@@ -56,7 +56,7 @@ function facturerreceptionAdminPrepareHead() {
 /**
  * @param $TCommandeFourn tableau de commandes fourn
  */
-function createFacture(&$TCommandeFourn, &$TLine) {
+function createFacture(&$TCommandeFourn, &$TLine, $date='') {
 
 	global $user, $conf, $langs, $db;
 
@@ -73,7 +73,8 @@ function createFacture(&$TCommandeFourn, &$TLine) {
 	$facture -> socid = $TCommandeFourn[0] -> socid;
 	$facture -> libelle = $TCommandeFourn[0] -> libelle;
 
-	$facture -> date = time();
+	if (!empty($date)) $facture -> date = $date;
+	else $facture -> date = time();
 
 	$facture -> note_public = $TCommandeFourn[0] -> note_public;
 	$facture -> note_private = $TCommandeFourn[0] -> note_private;

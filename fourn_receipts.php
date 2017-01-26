@@ -76,7 +76,13 @@ function _print_liste_receptions(&$soc) {
 		)
 	));
 	
-	print '<br /><div align="right"><input type="SUBMIT" class="butAction" value="'.$langs->trans('RunBillReceipts').'" name="btSubFormFactReceipts" /></div>';
+	$form = new Form($db);
+	print '<br />';
+	
+	print '<div align="right">';
+	print $langs->trans('facturerreception_date_facture').' '.$form->select_date();
+	print '<input type="SUBMIT" class="butAction" value="'.$langs->trans('RunBillReceipts').'" name="btSubFormFactReceipts" />';
+	print '</div>';
 	
 	print '</form>';
 	
@@ -87,6 +93,7 @@ function _facturer_receptions() {
 	global $db, $langs;
 	
 	$TReceipts = $_REQUEST['TReceipts'];
+	$date = dol_mktime(12, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
 	
 	if(!empty($TReceipts)) {
 		
@@ -121,7 +128,7 @@ function _facturer_receptions() {
 		
 		setEventMessage($langs->trans('ReceiptsBilled', count($Tab)));
 		
-		createFacture($TCMDFourn, $Tab);
+		createFacture($TCMDFourn, $Tab, $date);
 		
 	} else {
 		setEventMessage($langs->trans('NoReceiptSelected'));
