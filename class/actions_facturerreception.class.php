@@ -153,7 +153,7 @@ class ActionsfacturerReception
 			}
 		} elseif($parameters['currentcontext'] == 'suppliercard') {
 			
-			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid'), 2);
+			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid'), 1);
 						
 			?>
 			<script type="text/javascript">
