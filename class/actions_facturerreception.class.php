@@ -114,42 +114,48 @@ class ActionsfacturerReception
 				WHERE fk_commande=".$object->id
 				." GROUP BY date ");
 
-				$Tab = array();
-				while($obj = $db->fetch_object($resultset)) {
-					$Tab[$obj->date] = dol_print_date(strtotime($obj->datem), 'dayhour');
+				if ($resultset)
+				{
+					$Tab = array();
+					while($obj = $db->fetch_object($resultset)) {
+						$Tab[$obj->date] = dol_print_date(strtotime($obj->datem), 'dayhour');
+					}
+
+					if(empty($Tab)) return 0;
+
+					echo '<form name="facturerreception" action="?id=&action=billedreception" style="display:inline;">';
+					echo '<input type="hidden" name="id" value="'.$object->id.'" />';
+					echo '<input type="hidden" name="action" value="billedreception" />';
+					echo '<select name="datereception" >';
+						echo '<option value=""> </option>';
+
+					foreach ($Tab as $k=>$v) {
+
+						echo '<option value="'.$k.'">'.$v.'</option>';
+
+					}
+					echo '</select>';
+
+					echo '<input type="submit" class="butAction" value="'.$langs->trans('BillRecep').'" />';
+
+					echo '</form>';
+
+					?>
+					<script type="text/javascript">
+
+						$(document).ready(function() {
+
+							$("form[name=facturerreception]").appendTo("div.tabsAction");
+
+						});
+
+					</script>
+					<?php	
 				}
-				
-				if(empty($Tab)) return 0;
-				
-				echo '<form name="facturerreception" action="?id=&action=billedreception" style="display:inline;">';
-				echo '<input type="hidden" name="id" value="'.$object->id.'" />';
-				echo '<input type="hidden" name="action" value="billedreception" />';
-				echo '<select name="datereception" >';
-					echo '<option value=""> </option>';
-				
-				foreach ($Tab as $k=>$v) {
-					
-					echo '<option value="'.$k.'">'.$v.'</option>';
-					
+				else
+				{
+					dol_print_error($db);
 				}
-				echo '</select>';
-				
-				echo '<input type="submit" class="butAction" value="'.$langs->trans('BillRecep').'" />';
-				
-				echo '</form>';
-				
-				?>
-				<script type="text/javascript">
-				
-					$(document).ready(function() {
-					
-						$("form[name=facturerreception]").appendTo("div.tabsAction");
-							
-					});
-					
-				</script>
-				<?php
-				
 			}
 		} elseif($parameters['currentcontext'] == 'suppliercard') {
 			
