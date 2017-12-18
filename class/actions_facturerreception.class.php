@@ -109,10 +109,11 @@ class ActionsfacturerReception
 		{
 			if ($user->rights->fournisseur->facture->creer)
 			{
-				$resultset = $db->query("SELECT DATE_FORMAT(datec,'%Y-%m-%d %H:%i:00') as 'date', datec as 'datem', SUM(qty) as 'nb'
+				$db->query("SET SESSION sql_mode = ''");
+				$resultset = $db->query("SELECT DATE_FORMAT(datec,'%Y-%m-%d %H:00:00') as 'date', datec as 'datem', SUM(qty) as 'nb'
 				FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch 
 				WHERE fk_commande=".$object->id
-				." GROUP BY date ");
+				." GROUP BY date");
 
 				if ($resultset)
 				{
