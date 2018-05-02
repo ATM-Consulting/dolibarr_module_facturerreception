@@ -55,8 +55,9 @@ function _print_liste_receptions(&$soc) {
 			FROM '.MAIN_DB_PREFIX.'commande_fournisseur_dispatch cfd
 			INNER JOIN '.MAIN_DB_PREFIX.'commande_fournisseur cf ON cf.rowid = cfd.fk_commande
 			WHERE fk_soc='.$soc->id.'
-			AND cf.fk_statut IN(4,5)
-			GROUP BY cf.rowid, date';
+			AND cf.fk_statut IN(4,5)';
+	if((float)DOL_VERSION > 3.8) $sql.= ' AND cf.billed = 0';
+	$sql.= ' GROUP BY cf.rowid, date';
 	
 	$l=new TListviewTBS('list_receptions');
 	
