@@ -113,8 +113,10 @@ class InterfacefacturerReceptiontrigger
      */
     public function run_trigger($action, &$object, &$user, &$langs, &$conf)
     {
-        
-      
+        if($action == 'LINEBILL_SUPPLIER_DELETE') {
+            $object->deleteObjectLinked(null, '');
+        }
+
         return 0;
     }
 
