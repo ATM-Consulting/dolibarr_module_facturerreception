@@ -87,15 +87,6 @@ function createFacture(&$TCommandeFourn, &$TLine, $date='') {
 	$facture -> ref_supplier = time();
 	$facture -> date_echeance = $facture -> calculate_date_lim_reglement();
 
-	foreach ($TLine as $row) {
-
-		$line = dol_clone($row -> line);
-		$line -> qty = $row -> qty;
-		$line -> id = 0;
-		$facture -> lines[] = $line;
-
-	}
-
 	$res = $facture -> create($user);
 
 	if ($res > 0) {
@@ -111,6 +102,40 @@ function createFacture(&$TCommandeFourn, &$TLine, $date='') {
 				$facture->add_object_linked($obj->element, $obj->id);
 			}
 		}
+
+        foreach ($TLine as $row) {
+            $line = dol_clone($row -> line);
+            $TRowid = explode(',', $row->TRowid);
+            $line -> qty = $row -> qty;
+
+            $qqch = $facture->addline($line->desc
+                            ,$line->pu
+                            ,$line->tva_tx
+                            ,$line->localtax1_tx
+                            ,$line->localtax2_tx
+                            ,$line->qty
+                            ,$line->fk_product
+                            ,$line->remise_percent
+                            ,$line->date_start
+                            ,$line->date_end
+                            ,0
+                            ,$line->info_bits
+                            ,'HT'
+                            ,$line->product_type
+                            ,-1
+                            ,0
+                            ,$line->array_options
+                            ,$line->fk_unit
+                            ,$line->id
+                            ,0
+                            ,$line->ref_fourn);
+
+            $l = new SupplierInvoiceLine($db);
+            $l->fetch($qqch);
+            if(! empty($l->id)) {
+                foreach($TRowid as $rowid) $l->add_object_linked('commandefournisseurdispatch', $rowid);
+            }
+        }
 		
 		header('location:' . dol_buildpath('/fourn/facture/card.php?action=editref_supplier&id=' . $res, 1));
 
