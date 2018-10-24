@@ -108,30 +108,32 @@ function createFacture(&$TCommandeFourn, &$TLine, $date='') {
             $TRowid = explode(',', $row->TRowid);
             $line -> qty = $row -> qty;
 
-            $qqch = $facture->addline($line->desc
-                            ,$line->pu
-                            ,$line->tva_tx
-                            ,$line->localtax1_tx
-                            ,$line->localtax2_tx
-                            ,$line->qty
-                            ,$line->fk_product
-                            ,$line->remise_percent
-                            ,$line->date_start
-                            ,$line->date_end
-                            ,0
-                            ,$line->info_bits
-                            ,'HT'
-                            ,$line->product_type
-                            ,-1
-                            ,0
-                            ,$line->array_options
-                            ,$line->fk_unit
-                            ,$line->id
-                            ,0
-                            ,$line->ref_fourn);
+	    // Reproduction de ce que fait Dolibarr dans le create, car si on laisse faire le create on ne peut pas avoir accès aux id de lignes créées, et si on fait un addline ça fait sauter les PU
+            $sql = 'INSERT INTO '.MAIN_DB_PREFIX.'facture_fourn_det (fk_facture_fourn)';
+            $sql .= ' VALUES ('.$facture->id.')';
+
+            $resql_insert=$db->query($sql);
+            if ($resql_insert)
+            {
+            	$idligne = $db->last_insert_id(MAIN_DB_PREFIX.'facture_fourn_det');
+
+                $facture->updateline(
+                            $idligne,
+                            $line->description,
+                            $line->pu_ht,
+                            $line->tva_tx,
+                            $line->localtax1_tx,
+                            $line->localtax2_tx,
+                            $line->qty,
+                            $line->fk_product,
+                            'HT',
+                            (! empty($line->info_bits)?$line->info_bits:''),
+                            $line->product_type
+                );
+            }
 
             $l = new SupplierInvoiceLine($db);
-            $l->fetch($qqch);
+            $l->fetch($idligne);
             if(! empty($l->id)) {
                 foreach($TRowid as $rowid) $l->add_object_linked('commandefournisseurdispatch', $rowid);
             }
