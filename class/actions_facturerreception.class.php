@@ -108,11 +108,14 @@ class ActionsfacturerReception
 		{
 			if ($user->rights->fournisseur->facture->creer)
 			{
-				$resultset = $db->query("SELECT DATE_FORMAT(cfd.datec,'%Y-%m-%d %H:%i:00') as 'date', cfd.datec as 'datem', SUM(cfd.qty) as 'nb'
+				$sql = "SELECT DATE_FORMAT(cfd.datec,'%Y-%m-%d %H:%i:00') as 'date', cfd.datec as 'datem', SUM(cfd.qty) as 'nb'
 				FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch cfd
+				INNER JOIN ".MAIN_DB_PREFIX."commande_fournisseur cf ON cf.rowid = cfd.fk_commande
 				LEFT JOIN ".MAIN_DB_PREFIX."element_element ee ON (ee.sourcetype='commandefournisseurdispatch' AND ee.fk_source=cfd.rowid)
-				WHERE cfd.fk_commande=".$object->id
-				." GROUP BY date, datec HAVING GROUP_CONCAT(ee.fk_source) is null");
+				WHERE cfd.fk_commande=".$object->id.((float)DOL_VERSION > 3.8 ? ' AND cf.billed = 0' : '')
+				." GROUP BY date, datec HAVING GROUP_CONCAT(ee.fk_source) is null";
+
+				$resultset = $db->query($sql);
 
 				if ($resultset)
 				{
