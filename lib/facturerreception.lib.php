@@ -91,17 +91,7 @@ function createFacture(&$TCommandeFourn, &$TLine, $date='') {
 
 	if ($res > 0) {
 		
-		if(count($TCommandeFourn) > 1) {
-			// On attache les autres commandes fournisseur à la facture créée, car fait en auto uniquement pour la première grâce à $facture -> origin_id
-			$first = true;
-			foreach($TCommandeFourn as $obj) {
-				if($first) {
-					$first = false;
-					continue;
-				}
-				$facture->add_object_linked($obj->element, $obj->id);
-			}
-		}
+	foreach($TCommandeFourn as $obj) $facture->add_object_linked($obj->element, $obj->id);
 
         foreach ($TLine as $row) {
             $line = dol_clone($row -> line);
