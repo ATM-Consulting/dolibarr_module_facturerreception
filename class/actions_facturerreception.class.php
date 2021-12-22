@@ -73,7 +73,7 @@ class ActionsfacturerReception
 				$datereception = GETPOST('datereception', 'alphanohtml');
 				
 				if(!empty($datereception)) {
-					$resultset = $db->query("SELECT fk_commandefourndet,fk_product,SUM(qty) as qty
+					$resultset = $db->query("SELECT GROUP_CONCAT(rowid) as TRowid, fk_commandefourndet,fk_product,SUM(qty) as qty
 					FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch 
 					WHERE fk_commande=".$object->id."
 					AND datec LIKE '".date('Y-m-d H', strtotime($datereception))."%'
@@ -110,10 +110,14 @@ class ActionsfacturerReception
 			if ($user->rights->fournisseur->facture->creer)
 			{
 				$db->query("SET SESSION sql_mode = ''");
-				$resultset = $db->query("SELECT DATE_FORMAT(datec,'%Y-%m-%d %H:00:00') as 'date', datec as 'datem', SUM(qty) as 'nb'
-				FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch 
-				WHERE fk_commande=".$object->id
-				." GROUP BY date");
+				$sql = "SELECT DATE_FORMAT(cfd.datec,'%Y-%m-%d %H:%i:00') as 'date', cfd.datec as 'datem', SUM(cfd.qty) as 'nb'
+				FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch cfd
+				INNER JOIN ".MAIN_DB_PREFIX."commande_fournisseur cf ON cf.rowid = cfd.fk_commande
+				LEFT JOIN ".MAIN_DB_PREFIX."element_element ee ON (ee.sourcetype='commandefournisseurdispatch' AND ee.fk_source=cfd.rowid)
+				WHERE cfd.fk_commande=".$object->id.((float)DOL_VERSION > 3.8 ? ' AND cf.billed = 0' : '')
+				." GROUP BY date, datec HAVING GROUP_CONCAT(ee.fk_source) is null";
+
+				$resultset = $db->query($sql);
 
 				if ($resultset)
 				{

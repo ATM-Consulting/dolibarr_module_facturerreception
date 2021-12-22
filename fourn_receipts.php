@@ -54,10 +54,13 @@ function _print_liste_receptions(&$soc) {
 	$sql = 'SELECT cf.rowid as id_cmd_fourn, DATE_FORMAT(datec, "%Y-%m-%d %H:00:00") as date, SUM(cfd.qty) as "nb_produits", "" as case_a_cocher
 			FROM '.MAIN_DB_PREFIX.'commande_fournisseur_dispatch cfd
 			INNER JOIN '.MAIN_DB_PREFIX.'commande_fournisseur cf ON cf.rowid = cfd.fk_commande
-			WHERE fk_soc='.$soc->id.'
-			AND cf.fk_statut IN(4,5)
-			GROUP BY cf.rowid, date';
-	
+            LEFT JOIN '.MAIN_DB_PREFIX."element_element ee ON (ee.sourcetype='commandefournisseurdispatch' AND ee.fk_source=cfd.rowid)
+			WHERE fk_soc=".$soc->id.'
+			AND cf.fk_statut IN(4,5)';
+	if((float)DOL_VERSION > 3.8) $sql.= ' AND cf.billed = 0';
+	$sql.= ' GROUP BY cf.rowid, date';
+	$sql.= ' HAVING GROUP_CONCAT(ee.fk_source) is null';
+
 	$l=new TListviewTBS('list_receptions');
 	
 	print $l->render($ATMdb, $sql, array(
@@ -106,16 +109,15 @@ function _facturer_receptions() {
 			
 			foreach($TReceptions as $datereception) {
 				
-				$sql = "SELECT fk_commandefourndet,fk_product,SUM(qty) as qty
+				$sql = "SELECT GROUP_CONCAT(rowid) as TRowid, fk_commandefourndet,fk_product,SUM(qty) as qty
 						FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch 
 						WHERE fk_commande=".$cmd_fourn->id."
 						AND datec LIKE '".date('Y-m-d H', strtotime($datereception))."%'
 						GROUP BY fk_commandefourndet,fk_product";
 				
-				$db->query($sql);
+				$res = $db->query($sql);
 				
 				while($obj = $db->fetch_object($res)) {
-					
 					$obj->line = getGoodLine($cmd_fourn, $obj->fk_commandefourndet, $obj->fk_product);
 					$Tab[] = $obj;
 					
