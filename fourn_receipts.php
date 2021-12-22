@@ -7,8 +7,8 @@ require_once './lib/facturerreception.lib.php';
 
 $langs->load("facturerreception@facturerreception");
 $langs->load("orders");
-$socid = GETPOST('socid');
-$action = GETPOST('action');
+$socid = GETPOST('socid','int');
+$action = GETPOST('action','alphanohtml');
 
 $ATMdb = new TPDOdb;
 $soc = new Societe($db);
@@ -93,7 +93,7 @@ function _facturer_receptions() {
 	global $db, $langs;
 	
 	$TReceipts = $_REQUEST['TReceipts'];
-	$date = dol_mktime(12, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+	$date = dol_mktime(12, 0, 0, GETPOST('remonth', 'alphanohtml'), GETPOST('reday', 'alphanohtml'), GETPOST('reyear', 'alphanohtml'));
 	
 	if(!empty($TReceipts)) {
 		

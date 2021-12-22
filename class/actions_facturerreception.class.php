@@ -70,7 +70,7 @@ class ActionsfacturerReception
 			if ($user->rights->fournisseur->facture->creer)
 			{
 				
-				$datereception = GETPOST('datereception');
+				$datereception = GETPOST('datereception', 'alphanohtml');
 				
 				if(!empty($datereception)) {
 					$resultset = $db->query("SELECT fk_commandefourndet,fk_product,SUM(qty) as qty
@@ -160,7 +160,7 @@ class ActionsfacturerReception
 			}
 		} elseif($parameters['currentcontext'] == 'suppliercard') {
 			
-			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid'), 1);
+			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid', 'int'), 1);
 						
 			?>
 			<script type="text/javascript">
