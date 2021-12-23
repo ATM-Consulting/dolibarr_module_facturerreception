@@ -70,7 +70,7 @@ class ActionsfacturerReception
 			if ($user->rights->fournisseur->facture->creer)
 			{
 				
-				$datereception = GETPOST('datereception');
+				$datereception = GETPOST('datereception', 'alphanohtml');
 				
 				if(!empty($datereception)) {
 					$resultset = $db->query("SELECT GROUP_CONCAT(rowid) as TRowid, fk_commandefourndet,fk_product,SUM(qty) as qty
@@ -84,6 +84,7 @@ class ActionsfacturerReception
 					$Tab = array();
 					while($obj = $db->fetch_object($resultset)) {
 						$obj->line = getGoodLine($object, $obj->fk_commandefourndet, $obj->fk_product);
+						
 						$Tab[] = $obj;
 					}
 					
@@ -108,6 +109,7 @@ class ActionsfacturerReception
 		{
 			if ($user->rights->fournisseur->facture->creer)
 			{
+				$db->query("SET SESSION sql_mode = ''");
 				$sql = "SELECT DATE_FORMAT(cfd.datec,'%Y-%m-%d %H:%i:00') as 'date', cfd.datec as 'datem', SUM(cfd.qty) as 'nb'
 				FROM ".MAIN_DB_PREFIX."commande_fournisseur_dispatch cfd
 				INNER JOIN ".MAIN_DB_PREFIX."commande_fournisseur cf ON cf.rowid = cfd.fk_commande
@@ -162,7 +164,7 @@ class ActionsfacturerReception
 			}
 		} elseif($parameters['currentcontext'] == 'suppliercard') {
 			
-			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid'), 1);
+			$path = dol_buildpath('/facturerreception/fourn_receipts.php?socid='.GETPOST('socid', 'int'), 1);
 						
 			?>
 			<script type="text/javascript">
