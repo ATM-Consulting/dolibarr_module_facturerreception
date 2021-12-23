@@ -87,30 +87,47 @@ function createFacture(&$TCommandeFourn, &$TLine, $date='') {
 	$facture -> ref_supplier = time();
 	$facture -> date_echeance = $facture -> calculate_date_lim_reglement();
 
-	foreach ($TLine as $row) {
-
-		$line = dol_clone($row -> line);
-		$line -> qty = $row -> qty;
-		$line -> id = 0;
-		$facture -> lines[] = $line;
-
-	}
-
 	$res = $facture -> create($user);
 
 	if ($res > 0) {
 		
-		if(count($TCommandeFourn) > 1) {
-			// On attache les autres commandes fournisseur à la facture créée, car fait en auto uniquement pour la première grâce à $facture -> origin_id
-			$first = true;
-			foreach($TCommandeFourn as $obj) {
-				if($first) {
-					$first = false;
-					continue;
-				}
-				$facture->add_object_linked($obj->element, $obj->id);
-			}
-		}
+	foreach($TCommandeFourn as $obj) $facture->add_object_linked($obj->element, $obj->id);
+
+        foreach ($TLine as $row) {
+            $line = dol_clone($row -> line);
+            $TRowid = explode(',', $row->TRowid);
+            $line -> qty = $row -> qty;
+
+	    // Reproduction de ce que fait Dolibarr dans le create, car si on laisse faire le create on ne peut pas avoir accès aux id de lignes créées, et si on fait un addline ça fait sauter les PU
+            $sql = 'INSERT INTO '.MAIN_DB_PREFIX.'facture_fourn_det (fk_facture_fourn)';
+            $sql .= ' VALUES ('.$facture->id.')';
+
+            $resql_insert=$db->query($sql);
+            if ($resql_insert)
+            {
+            	$idligne = $db->last_insert_id(MAIN_DB_PREFIX.'facture_fourn_det');
+
+                $facture->updateline(
+                            $idligne,
+                            $line->description,
+                            $line->pu_ht,
+                            $line->tva_tx,
+                            $line->localtax1_tx,
+                            $line->localtax2_tx,
+                            $line->qty,
+                            $line->fk_product,
+                            'HT',
+                            (! empty($line->info_bits)?$line->info_bits:''),
+                            $line->product_type
+                );
+            }
+
+            $l = new SupplierInvoiceLine($db);
+            $l->fetch($idligne);
+            if(! empty($l->id)) {
+                foreach($TRowid as $rowid) $l->add_object_linked('commandefournisseurdispatch', $rowid);
+            }
+        }
 		
 		header('location:' . dol_buildpath('/fourn/facture/card.php?action=editref_supplier&id=' . $res, 1));
 
